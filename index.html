@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Telegram Mini App</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #loading {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: url('/api/placeholder/1920/1080') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        #main {
+            display: none;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .glass-rectangle {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .content img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+        
+        .platforms-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .platform-box {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .platform-content {
+            display: flex;
+            align-items: center;
+        }
+        
+        .check-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            outline: none;
+            /* Remove outline */
+        }
+        
+        .check-button:focus {
+            outline: none;
+            /* Remove focus outline */
+        }
+        
+        .note {
+            text-align: center;
+            margin-top: auto;
+            padding: 20px;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+    </div>
+    <div id="main">
+        <div class="glass-rectangle">
+            <div class="content">
+                <img src="/api/placeholder/50/50" alt="Logo">
+                <span>Until the start of the original version of crow</span>
+            </div>
+        </div>
+        <div class="platforms-title">Follow our platforms</div>
+        <div class="platform-box">
+            <div class="platform-content">
+                <img src="/api/placeholder/50/50" alt="Telegram">
+                <span>Follow our channel</span>
+            </div>
+            <button class="check-button" onclick="checkPlatform('telegram')">Check</button>
+        </div>
+        <div class="platform-box">
+            <div class="platform-content">
+                <img src="/api/placeholder/50/50" alt="YouTube">
+                <span>Follow our YouTube</span>
+            </div>
+            <button class="check-button" onclick="checkPlatform('youtube')">Check</button>
+        </div>
+        <div class="platform-box">
+            <div class="platform-content">
+                <img src="/api/placeholder/50/50" alt="X">
+                <span>Follow our X</span>
+            </div>
+            <button class="check-button" onclick="checkPlatform('twitter')">Check</button>
+        </div>
+        <div class="note">
+            🚫 Note, choose an extension for yourself and send it to the robot as an SMS, if you do not do this, you will not have a place in the original version, so act as soon as possible.
+        </div>
+    </div>
+
+    <script>
+        // Show loading screen for 12 seconds
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('main').style.display = 'flex';
+        }, 12000);
+
+        const requiredVisits = {
+            'telegram': 4,
+            'youtube': 6,
+            'twitter': 5
+        };
+
+        function checkPlatform(platform) {
+            let url;
+            switch (platform) {
+                case 'telegram':
+                    url = 'https://t.me/your_channel';
+                    break;
+                case 'youtube':
+                    url = 'https://www.youtube.com/your_channel';
+                    break;
+                case 'twitter':
+                    url = 'https://twitter.com/your_account';
+                    break;
+            }
+
+            window.open(url, '_blank');
+
+            // Increment visit count
+            let visits = parseInt(localStorage.getItem(platform + '_visits') || '0');
+            visits++;
+            localStorage.setItem(platform + '_visits', visits);
+
+            // Check if required visits are met
+            if (visits >= requiredVisits[platform]) {
+                localStorage.setItem(platform + '_checked', 'true');
+                updateButtonAppearance(platform);
+            }
+        }
+
+        function updateButtonAppearance(platform) {
+            const button = document.querySelector(`button[onclick="checkPlatform('${platform}')"]`);
+            button.textContent = '✓';
+            button.style.backgroundColor = '#4CAF50';
+            button.disabled = true;
+        }
+
+        // Check localStorage for checked platforms on page load
+        window.onload = function() {
+            const platforms = ['telegram', 'youtube', 'twitter'];
+            platforms.forEach(platform => {
+                if (localStorage.getItem(platform + '_checked') === 'true') {
+                    updateButtonAppearance(platform);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
